@@ -1,0 +1,37 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <value>
+          <list size="17">
+            <item index="0" class="java.lang.String" itemvalue="bs4" />
+            <item index="1" class="java.lang.String" itemvalue="rdflib-jsonld" />
+            <item index="2" class="java.lang.String" itemvalue="scikit-learn" />
+            <item index="3" class="java.lang.String" itemvalue="nltk" />
+            <item index="4" class="java.lang.String" itemvalue="rdflib" />
+            <item index="5" class="java.lang.String" itemvalue="click-option-group" />
+            <item index="6" class="java.lang.String" itemvalue="numpy" />
+            <item index="7" class="java.lang.String" itemvalue="contractions" />
+            <item index="8" class="java.lang.String" itemvalue="pandas" />
+            <item index="9" class="java.lang.String" itemvalue="chardet" />
+            <item index="10" class="java.lang.String" itemvalue="markdown" />
+            <item index="11" class="java.lang.String" itemvalue="inflect" />
+            <item index="12" class="java.lang.String" itemvalue="morph-kgc" />
+            <item index="13" class="java.lang.String" itemvalue="textblob" />
+            <item index="14" class="java.lang.String" itemvalue="beautifulsoup4" />
+            <item index="15" class="java.lang.String" itemvalue="arxiv" />
+            <item index="16" class="java.lang.String" itemvalue="tika" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="src.SSKG.object_creator.downloaded_to_paperObj.metadata_extraction" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
