@@ -7,8 +7,52 @@ import pandas as pd
 API_KEY = ""
 BASE_URL = "https://maps.googleapis.com/maps/api/place/"
 
+import requests
+import time
+
+BASE_URL = "https://maps.googleapis.com/maps/api/place/"
+
 
 def search_hiking_places(location, radius, api_key=API_KEY):
+    url = f"{BASE_URL}textsearch/json"
+    all_place_ids = []
+
+    params = {
+        'query': 'hiking trail',
+        'location': location,  # e.g., '40.7128,-74.0060' for New York City
+        'radius': radius,  # in meters, e.g., 50000 for 50 km
+        'type': 'park',
+        'key': api_key
+    }
+
+    # Fetch the first page
+    response = requests.get(url, params=params)
+    response.raise_for_status()
+    data = response.json()
+
+    # Extract place IDs from the first page
+    all_place_ids.extend([place.get("place_id") for place in data.get('results', [])])
+
+    # Check if there's a next page
+    next_page_token = data.get('next_page_token')
+
+    # Fetch the second page if available
+    if next_page_token:
+        # Wait briefly as the token might need time to activate
+        time.sleep(2)
+
+        params['pagetoken'] = next_page_token
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        data = response.json()
+
+        # Extract place IDs from the second page
+        all_place_ids.extend([place.get("place_id") for place in data.get('results', [])])
+
+    return all_place_ids
+
+
+def search_hiking_places_old(location, radius, api_key=API_KEY):
     url = f"{BASE_URL}textsearch/json"
     params = {
         'query': 'hiking trail',
