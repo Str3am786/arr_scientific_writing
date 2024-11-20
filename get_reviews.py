@@ -1,22 +1,38 @@
 import logging
 from time import sleep
-
 import requests
 import pandas as pd
 
 API_KEY = ""
 BASE_URL = "https://maps.googleapis.com/maps/api/place/"
 
-import requests
-import time
-
-BASE_URL = "https://maps.googleapis.com/maps/api/place/"
-
 
 def search_hiking_places(location, radius, api_key=API_KEY):
-    url = f"{BASE_URL}textsearch/json"
-    all_place_ids = []
 
+    params = {
+        'query': 'hiking trail',
+        'location': location,
+        'radius': radius,
+        'type': 'hiking area',
+        'key': api_key
+    }
+
+    return search_places(params)
+
+
+def search_parks(location, radius, api_key=API_KEY):
+    params = {
+        'query': 'hiking trail',
+        'location': location,
+        'radius': radius,
+        'type': 'park',
+        'key': api_key
+    }
+
+    return search_places(params)
+
+
+def search_camping_grounds(location, radius, api_key=API_KEY):
     params = {
         'query': 'hiking trail',
         'location': location,  # e.g., '40.7128,-74.0060' for New York City
@@ -25,6 +41,13 @@ def search_hiking_places(location, radius, api_key=API_KEY):
         'key': api_key
     }
 
+    return search_places(params)
+
+
+def search_places(params: dict) -> list:
+
+    url = f"{BASE_URL}textsearch/json"
+    all_place_ids = []
     # Fetch the first page
     response = requests.get(url, params=params)
     response.raise_for_status()
@@ -37,9 +60,9 @@ def search_hiking_places(location, radius, api_key=API_KEY):
     next_page_token = data.get('next_page_token')
 
     # Fetch the second page if available
-    if next_page_token:
+    while next_page_token:
         # Wait briefly as the token might need time to activate
-        time.sleep(2)
+        sleep(2)
 
         params['pagetoken'] = next_page_token
         response = requests.get(url, params=params)
@@ -48,6 +71,8 @@ def search_hiking_places(location, radius, api_key=API_KEY):
 
         # Extract place IDs from the second page
         all_place_ids.extend([place.get("place_id") for place in data.get('results', [])])
+
+        next_page_token = data.get('next_page_token')
 
     return all_place_ids
 
@@ -112,10 +137,9 @@ def get_place_reviews(place_id: str, api_key=API_KEY):
         raise Exception(f"No reviews for place {place_id}")
 
 
-def clean_up_reviews(dict_new_reviews: dict, filtered_reviews: pd.DataFrame) -> pd.DataFrame:
+def clean_up_reviews(dict_new_reviews: dict) -> pd.DataFrame:
     """
     :param list_new_reviews:
-    :param filtered_reviews: Already cleaned-up reviews from same place
     :return:
     List of reviews with what we want to know/need to know
     """
@@ -132,10 +156,8 @@ def clean_up_reviews(dict_new_reviews: dict, filtered_reviews: pd.DataFrame) -> 
     ]
 
     new_reviews_df = pd.DataFrame(new_reviews)
-
     # Concatenate the new reviews with the existing filtered_reviews DataFrame
     return new_reviews_df
-
 
 
 def get_review_pipeline(location, radius) -> pd.DataFrame:
@@ -143,18 +165,22 @@ def get_review_pipeline(location, radius) -> pd.DataFrame:
     Orchestrates the process to get and clean reviews for a given place name.
     """
     result = pd.DataFrame()
+    places = []
 
     try:
-        hiking_places = search_hiking_places(location=location, radius=radius)
+        places.extend(search_parks(location=location, radius=radius))
+        #places.extend(search_camping_grounds(location=location, radius=radius))
+        #places.extend(search_hiking_places(location=location, radius=radius))
+        print()
     except Exception as e:
         logging.error(f"{e}")
         return result
 
-    for place_id in hiking_places:
+    for place_id in places:
         sleep(0.5)
         try:
             unclean_reviews = get_place_reviews(place_id=place_id)
-            filtered_reviews = clean_up_reviews(unclean_reviews, result)
+            filtered_reviews = clean_up_reviews(unclean_reviews)
             result = pd.concat([filtered_reviews, result], ignore_index=True)
         except Exception as e:
             logging.error(f"{e}")
